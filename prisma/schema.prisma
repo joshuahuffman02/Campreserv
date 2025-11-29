@@ -1,0 +1,383 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  guest
+  staff
+  admin
+}
+
+enum CampgroundRole {
+  owner
+  manager
+  front_desk
+  maintenance
+  finance
+  marketing
+  read_only
+}
+
+enum ReservationStatus {
+  pending
+  confirmed
+  checked_in
+  checked_out
+  cancelled
+}
+
+enum PaymentStatus {
+  unpaid
+  authorized
+  paid
+  refunded
+  partial_refund
+}
+
+enum PaymentProvider {
+  stripe
+}
+
+enum PricingRuleType {
+  seasonal
+  weekend
+  holiday
+  special_event
+  promo
+}
+
+enum ChargeType {
+  tax
+  fee
+}
+
+enum ChargeBasis {
+  per_stay
+  per_night
+  per_person
+  per_pet
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  phone         String?
+  passwordHash  String?
+  role          Role     @default(guest)
+  firstName     String?
+  lastName      String?
+  status        String   @default("active")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  lastLoginAt   DateTime?
+  reservations  Reservation[]
+  auditLogs     AuditLog[] @relation("AuditActor")
+  memberships   CampgroundMembership[]
+}
+
+model Campground {
+  id             String   @id @default(uuid())
+  name           String
+  description    String?
+  addressLine1   String?
+  addressLine2   String?
+  city           String?
+  state          String?
+  postalCode     String?
+  country        String?
+  timezone       String   @default("UTC")
+  checkInTime    String?  // HH:mm
+  checkOutTime   String?  // HH:mm
+  contactEmail   String?
+  contactPhone   String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  siteTypes      SiteType[]
+  sites          Site[]
+  reservations   Reservation[]
+  pricingRules   PricingRule[]
+  events         Event[]
+  deals          Deal[]
+  charges        CampgroundCharge[]
+  memberships    CampgroundMembership[]
+  policies       CampgroundPolicy?
+}
+
+model SiteType {
+  id            String   @id @default(uuid())
+  campground    Campground @relation(fields: [campgroundId], references: [id])
+  campgroundId  String
+  name          String
+  description   String?
+  basePriceCents Int
+  occupancyMax  Int
+  hasElectric20 Boolean @default(false)
+  hasElectric30 Boolean @default(false)
+  hasElectric50 Boolean @default(false)
+  hasWater      Boolean @default(false)
+  hasSewer      Boolean @default(false)
+  petFriendly   Boolean @default(false)
+  lengthLimitFt Int?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  sites         Site[]
+  pricingRules  PricingRule[]
+}
+
+model Site {
+  id                  String   @id @default(uuid())
+  campground          Campground @relation(fields: [campgroundId], references: [id])
+  campgroundId        String
+  siteType            SiteType @relation(fields: [siteTypeId], references: [id])
+  siteTypeId          String
+  nameOrNumber        String
+  occupancyMaxOverride Int?
+  lengthLimitFtOverride Int?
+  priceOverrideCents  Int?
+  notes               String?
+  isActive            Boolean @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  reservations        Reservation[]
+  blackouts           Blackout[]
+  maintenanceBlocks   MaintenanceBlock[]
+  pricingRules        PricingRule[]
+
+  @@unique([campgroundId, nameOrNumber])
+  @@index([siteTypeId])
+}
+
+model PricingRule {
+  id            String   @id @default(uuid())
+  campground    Campground @relation(fields: [campgroundId], references: [id])
+  campgroundId  String
+  siteType      SiteType? @relation(fields: [siteTypeId], references: [id])
+  siteTypeId    String?
+  site          Site? @relation(fields: [siteId], references: [id])
+  siteId        String?
+  startDate     DateTime
+  endDate       DateTime
+  dayOfWeekMask Int?
+  priceCents    Int
+  minNights     Int?
+  ruleType      PricingRuleType
+  priority      Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([campgroundId, startDate, endDate])
+  @@index([siteTypeId])
+  @@index([siteId])
+  @@index([priority])
+}
+
+model CampgroundMembership {
+  id            String          @id @default(uuid())
+  user          User            @relation(fields: [userId], references: [id])
+  userId        String
+  campground    Campground      @relation(fields: [campgroundId], references: [id])
+  campgroundId  String
+  role          CampgroundRole
+  createdAt     DateTime        @default(now())
+
+  @@unique([userId, campgroundId])
+  @@index([campgroundId, role])
+}
+
+model Event {
+  id           String      @id @default(uuid())
+  campground   Campground  @relation(fields: [campgroundId], references: [id])
+  campgroundId String
+  title        String
+  summary      String?
+  description  String?
+  startDate    DateTime
+  endDate      DateTime
+  heroImageUrl String?
+  featured     Boolean    @default(false)
+  ctaLabel     String?    @default("Book now")
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  deals        Deal[]
+
+  @@index([campgroundId, startDate, endDate])
+  @@index([featured])
+}
+
+enum DealType {
+  percentage
+  flat
+}
+
+model Deal {
+  id            String      @id @default(uuid())
+  campground    Campground  @relation(fields: [campgroundId], references: [id])
+  campgroundId  String
+  title         String
+  description   String?
+  dealType      DealType
+  discountValue Int         // percentage (0-100) or flat cents depending on dealType
+  startDate     DateTime
+  endDate       DateTime
+  minNights     Int?
+  autoApply     Boolean     @default(true)
+  siteType      SiteType?   @relation(fields: [siteTypeId], references: [id])
+  siteTypeId    String?
+  event         Event?      @relation(fields: [eventId], references: [id])
+  eventId       String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([campgroundId, startDate, endDate])
+  @@index([siteTypeId])
+  @@index([eventId])
+}
+
+model CampgroundCharge {
+  id             String       @id @default(uuid())
+  campground     Campground   @relation(fields: [campgroundId], references: [id])
+  campgroundId   String
+  name           String
+  description    String?
+  type           ChargeType
+  basis          ChargeBasis  @default(per_stay)
+  amountCents    Int?
+  percentage     Int?         // basis points (e.g. 850 = 8.5%)
+  appliesToPets  Boolean      @default(false)
+  appliesToSites Boolean      @default(true)
+  active         Boolean      @default(true)
+  startDate      DateTime?
+  endDate        DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([campgroundId, type])
+}
+
+model CampgroundPolicy {
+  id                    String      @id @default(uuid())
+  campground            Campground  @relation(fields: [campgroundId], references: [id])
+  campgroundId          String      @unique
+  cancellationPolicy    String?
+  refundPolicy          String?
+  quietHours            String?
+  petPolicy             String?
+  lateArrivalPolicy     String?
+  bookingWindowDays     Int?       // optional booking window caps per campground
+  allowSameDayBookings  Boolean    @default(true)
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime   @updatedAt
+}
+
+model Blackout {
+  id        String   @id @default(uuid())
+  site      Site     @relation(fields: [siteId], references: [id])
+  siteId    String
+  startDate DateTime
+  endDate   DateTime
+  reason    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([siteId, startDate, endDate])
+}
+
+model MaintenanceBlock {
+  id        String   @id @default(uuid())
+  site      Site     @relation(fields: [siteId], references: [id])
+  siteId    String
+  startDate DateTime
+  endDate   DateTime
+  reason    String?
+  createdBy User?    @relation(fields: [createdById], references: [id])
+  createdById String?
+  createdAt DateTime @default(now())
+
+  @@index([siteId, startDate, endDate])
+}
+
+model Reservation {
+  id              String   @id @default(uuid())
+  campground      Campground @relation(fields: [campgroundId], references: [id])
+  campgroundId    String
+  site            Site     @relation(fields: [siteId], references: [id])
+  siteId          String
+  user            User?    @relation(fields: [userId], references: [id])
+  userId          String?
+  guestFirstName  String
+  guestLastName   String
+  guestEmail      String
+  guestPhone      String?
+  status          ReservationStatus @default(pending)
+  arrivalDate     DateTime
+  departureDate   DateTime
+  adults          Int
+  kids            Int @default(0)
+  pets            Int @default(0)
+  rigType         String?
+  rigLengthFt     Int?
+  vehiclePlate    String?
+  notes           String?
+  nightlySubtotalCents Int
+  taxCents        Int
+  feesCents       Int
+  totalCents      Int
+  paymentStatus   PaymentStatus @default(unpaid)
+  paymentIntentId String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  cancelledAt     DateTime?
+  reservationItems ReservationItem[]
+  payments        Payment[]
+
+  @@index([siteId, arrivalDate, departureDate])
+  @@index([campgroundId, arrivalDate])
+}
+
+model ReservationItem {
+  id             String   @id @default(uuid())
+  reservation    Reservation @relation(fields: [reservationId], references: [id])
+  reservationId  String
+  date           DateTime
+  priceCents     Int
+  taxCents       Int
+  feeCents       Int
+
+  @@unique([reservationId, date])
+}
+
+model Payment {
+  id              String   @id @default(uuid())
+  reservation     Reservation @relation(fields: [reservationId], references: [id])
+  reservationId   String
+  provider        PaymentProvider @default(stripe)
+  paymentIntentId String
+  chargeId        String?
+  amountCents     Int
+  currency        String @default("usd")
+  status          PaymentStatus
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([reservationId])
+  @@index([paymentIntentId])
+}
+
+model AuditLog {
+  id           String   @id @default(uuid())
+  actor        User?    @relation("AuditActor", fields: [actorUserId], references: [id])
+  actorUserId  String?
+  action       String
+  entityType   String
+  entityId     String
+  meta         Json?
+  createdAt    DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
