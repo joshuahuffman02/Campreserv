@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../config/prisma";
-import { requireAuth, requireCampgroundRole } from "../middleware/auth";
-import { CampgroundRole, Role } from "@prisma/client";
+import { requireAuth } from "../middleware/auth";
+import { Role } from "@prisma/client";
 import { normalizeDateRange } from "../utils/dateRange";
 
 const reservationsRouter = Router();
@@ -30,27 +30,14 @@ const reservationSchema = z.object({
   paymentIntentId: z.string().optional(),
 });
 
-reservationsRouter.get(
-  "/",
-  requireAuth(),
-  requireCampgroundRole([
-    CampgroundRole.owner,
-    CampgroundRole.manager,
-    CampgroundRole.front_desk,
-    CampgroundRole.maintenance,
-    CampgroundRole.finance,
-    CampgroundRole.read_only,
-  ]),
-  async (req, res) => {
-    const campgroundId = req.query.campgroundId as string | undefined;
-    if (!campgroundId) return res.status(400).json({ message: "campgroundId is required" });
-    const reservations = await prisma.reservation.findMany({
-      where: { campgroundId },
-      include: { site: true },
-    });
-    res.json(reservations);
-  }
-);
+reservationsRouter.get("/", requireAuth([Role.admin, Role.staff]), async (req, res) => {
+  const campgroundId = req.query.campgroundId as string | undefined;
+  const reservations = await prisma.reservation.findMany({
+    where: campgroundId ? { campgroundId } : undefined,
+    include: { site: true },
+  });
+  res.json(reservations);
+});
 
 reservationsRouter.post("/", async (req, res) => {
   const parsed = reservationSchema.safeParse(req.body);
@@ -103,17 +90,12 @@ reservationsRouter.post("/", async (req, res) => {
   }
 });
 
-reservationsRouter.patch(
-  "/:id/status",
-  requireAuth(),
-  requireCampgroundRole([CampgroundRole.owner, CampgroundRole.manager, CampgroundRole.front_desk]),
-  async (req, res) => {
-    const statusSchema = z.object({ status: z.enum(["pending", "confirmed", "checked_in", "checked_out", "cancelled"]) });
-    const parsed = statusSchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ errors: parsed.error.format() });
-    const reservation = await prisma.reservation.update({ where: { id: req.params.id }, data: { status: parsed.data.status } });
-    res.json(reservation);
-  }
-);
+reservationsRouter.patch("/:id/status", requireAuth([Role.admin, Role.staff]), async (req, res) => {
+  const statusSchema = z.object({ status: z.enum(["pending", "confirmed", "checked_in", "checked_out", "cancelled"]) });
+  const parsed = statusSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ errors: parsed.error.format() });
+  const reservation = await prisma.reservation.update({ where: { id: req.params.id }, data: { status: parsed.data.status } });
+  res.json(reservation);
+});
 
 export { reservationsRouter };
