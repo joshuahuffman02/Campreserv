@@ -1,79 +1,60 @@
 import { Router } from "express";
 import { z } from "zod";
-import { prisma } from "../prisma";
+import { prisma } from "../config/prisma";
+import { requireAuth } from "../middleware/auth";
+import { Role } from "@prisma/client";
+import { normalizeDateRange } from "../utils/dateRange";
 
 const reservationsRouter = Router();
 
 const reservationSchema = z.object({
   campgroundId: z.string(),
   siteId: z.string(),
+  arrivalDate: z.string(),
+  departureDate: z.string(),
   guestFirstName: z.string(),
   guestLastName: z.string(),
   guestEmail: z.string().email(),
-  arrivalDate: z.string(),
-  departureDate: z.string(),
+  guestPhone: z.string().optional(),
   adults: z.number().int().min(1),
   kids: z.number().int().min(0).default(0),
   pets: z.number().int().min(0).default(0),
+  rigType: z.string().optional(),
+  rigLengthFt: z.number().int().positive().optional(),
+  vehiclePlate: z.string().optional(),
+  notes: z.string().optional(),
+  nightlySubtotalCents: z.number().int().min(0),
+  taxCents: z.number().int().min(0),
+  feesCents: z.number().int().min(0),
+  totalCents: z.number().int().min(0),
+  paymentIntentId: z.string().optional(),
 });
 
-reservationsRouter.get("/", async (_req, res) => {
-  try {
-    const reservations = await prisma.reservation.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 20,
-      include: {
-        campground: { select: { id: true, name: true } },
-        site: { select: { id: true, nameOrNumber: true } },
-      },
-    });
-
-    const shaped = reservations.map((reservation: any) => ({
-      id: reservation.id,
-      status: reservation.status,
-      arrivalDate: reservation.arrivalDate,
-      departureDate: reservation.departureDate,
-      guestFirstName: reservation.guestFirstName,
-      guestLastName: reservation.guestLastName,
-      campground: reservation.campground,
-      site: reservation.site,
-    }));
-
-    res.json(shaped);
-  } catch (error) {
-    res.status(500).json({ message: "Failed to fetch reservations", error: `${error}` });
-  }
+reservationsRouter.get("/", requireAuth([Role.admin, Role.staff]), async (req, res) => {
+  const campgroundId = req.query.campgroundId as string | undefined;
+  const reservations = await prisma.reservation.findMany({
+    where: campgroundId ? { campgroundId } : undefined,
+    include: { site: true },
+  });
+  res.json(reservations);
 });
 
 reservationsRouter.post("/", async (req, res) => {
   const parsed = reservationSchema.safeParse(req.body);
-  if (!parsed.success) {
-    return res.status(400).json({ errors: parsed.error.flatten() });
-  }
-
+  if (!parsed.success) return res.status(400).json({ errors: parsed.error.format() });
   const data = parsed.data;
-  const arrivalDate = new Date(data.arrivalDate);
-  const departureDate = new Date(data.departureDate);
-
-  if (Number.isNaN(arrivalDate.valueOf()) || Number.isNaN(departureDate.valueOf())) {
-    return res.status(400).json({ message: "Invalid arrival or departure date" });
-  }
-
-  if (arrivalDate >= departureDate) {
-    return res.status(400).json({ message: "Departure date must be after arrival date" });
-  }
 
   try {
-    const overlapping = await prisma.reservation.findFirst({
+    const range = normalizeDateRange(data.arrivalDate, data.departureDate);
+    const overlapping = await prisma.reservation.count({
       where: {
         siteId: data.siteId,
-        status: { in: ["pending", "confirmed"] },
-        arrivalDate: { lt: departureDate },
-        departureDate: { gt: arrivalDate },
+        status: { in: ["pending", "confirmed", "checked_in"] },
+        arrivalDate: { lt: range.end },
+        departureDate: { gt: range.start },
       },
     });
-
-    if (overlapping) {
+    if (overlapping > 0) {
       return res.status(409).json({ message: "Site not available for selected dates" });
     }
 
@@ -81,27 +62,40 @@ reservationsRouter.post("/", async (req, res) => {
       data: {
         campgroundId: data.campgroundId,
         siteId: data.siteId,
+        arrivalDate: range.start,
+        departureDate: range.end,
         guestFirstName: data.guestFirstName,
         guestLastName: data.guestLastName,
         guestEmail: data.guestEmail,
-        arrivalDate,
-        departureDate,
+        guestPhone: data.guestPhone,
         adults: data.adults,
         kids: data.kids,
         pets: data.pets,
-        nightlySubtotalCents: 0,
-        taxCents: 0,
-        feesCents: 0,
-        totalCents: 0,
-        status: "pending",
+        rigType: data.rigType,
+        rigLengthFt: data.rigLengthFt,
+        vehiclePlate: data.vehiclePlate,
+        notes: data.notes,
+        nightlySubtotalCents: data.nightlySubtotalCents,
+        taxCents: data.taxCents,
+        feesCents: data.feesCents,
+        totalCents: data.totalCents,
         paymentStatus: "unpaid",
+        status: "pending",
+        paymentIntentId: data.paymentIntentId,
       },
     });
-
     res.status(201).json(reservation);
-  } catch (error) {
-    res.status(500).json({ message: "Failed to create reservation", error: `${error}` });
+  } catch (err) {
+    return res.status(400).json({ message: "Could not create reservation", error: `${err}` });
   }
+});
+
+reservationsRouter.patch("/:id/status", requireAuth([Role.admin, Role.staff]), async (req, res) => {
+  const statusSchema = z.object({ status: z.enum(["pending", "confirmed", "checked_in", "checked_out", "cancelled"]) });
+  const parsed = statusSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ errors: parsed.error.format() });
+  const reservation = await prisma.reservation.update({ where: { id: req.params.id }, data: { status: parsed.data.status } });
+  res.json(reservation);
 });
 
 export { reservationsRouter };

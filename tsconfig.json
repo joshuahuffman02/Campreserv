@@ -11,16 +11,6 @@
     "rootDir": "src",
     "types": ["node"]
   },
-  "include": ["src"],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "src/routes/deals.ts",
-    "src/routes/events.ts",
-    "src/routes/eventBookings.ts",
-    "src/routes/payments.ts",
-    "src/routes/auth.ts",
-    "src/middleware/auth.ts",
-    "src/services/availabilityService.ts"
-  ]
+  "include": ["src", "tests"],
+  "exclude": ["node_modules", "dist"]
 }

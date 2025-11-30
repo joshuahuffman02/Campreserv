@@ -1,4 +1,5 @@
-import { prisma } from "../prisma";
+import { Prisma } from "@prisma/client";
+import { prisma } from "../config/prisma";
 import { normalizeDateRange } from "../utils/dateRange";
 
 type AvailabilityFilter = {
@@ -24,7 +25,7 @@ export const findAvailableSites = async (
     return { [column]: true } as Record<string, boolean>;
   });
 
-  const where: Record<string, unknown> = {
+  const where: Prisma.SiteWhereInput = {
     campgroundId: filters.campgroundId,
     isActive: true,
     siteType: {
