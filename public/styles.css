@@ -1,0 +1,186 @@
+:root {
+  color-scheme: light dark;
+  --bg: #0d1b2a;
+  --card: #0f2538;
+  --accent: #5ce1e6;
+  --text: #e6f1ff;
+  --muted: #8ca3ba;
+  --border: #1f3550;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  background: radial-gradient(circle at 10% 20%, rgba(92, 225, 230, 0.08), transparent 25%),
+    radial-gradient(circle at 90% 10%, rgba(248, 118, 109, 0.07), transparent 25%),
+    var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+.container {
+  width: min(1100px, 92vw);
+  margin: 0 auto 3rem;
+  display: grid;
+  gap: 1.5rem;
+}
+
+.hero {
+  padding: 3rem 0 2rem;
+  width: min(1100px, 92vw);
+  margin: 0 auto;
+}
+
+.hero .eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  font-size: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.hero .lede {
+  color: var(--muted);
+  margin-top: 0.5rem;
+}
+
+.card {
+  background: rgba(15, 37, 56, 0.8);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(6px);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+button {
+  border: none;
+  background: var(--accent);
+  color: #041422;
+  padding: 0.65rem 1.1rem;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(92, 225, 230, 0.25);
+}
+
+button.ghost {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.form-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  color: var(--text);
+}
+
+.form-grid input,
+.form-grid textarea {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.form-grid textarea {
+  resize: vertical;
+}
+
+.form-grid .full {
+  grid-column: 1 / -1;
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.table-wrapper {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--text);
+}
+
+thead {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+td,
+th {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(92, 225, 230, 0.12);
+  color: var(--accent);
+  font-size: 0.85rem;
+  border: 1px solid rgba(92, 225, 230, 0.35);
+}
+
+#campgroundsContainer.empty {
+  padding: 1rem;
+  text-align: center;
+  color: var(--muted);
+}

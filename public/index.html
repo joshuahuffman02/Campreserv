@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Campreserv Playground</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Playground</p>
+        <h1>Campreserv</h1>
+        <p class="lede">Test the API by listing and creating campgrounds.</p>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <p class="eyebrow">Campgrounds</p>
+            <h2>Current list</h2>
+          </div>
+          <button id="refreshButton" class="ghost">Refresh</button>
+        </div>
+        <div id="campgroundsContainer" class="table-wrapper">
+          <p>Loading campgrounds...</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <p class="eyebrow">Create</p>
+            <h2>Add a campground</h2>
+          </div>
+        </div>
+        <form id="campgroundForm" class="form-grid">
+          <label>
+            <span>Name</span>
+            <input name="name" type="text" required placeholder="Camp Everyday" />
+          </label>
+          <label class="full">
+            <span>Description</span>
+            <textarea name="description" rows="3" placeholder="A short description"></textarea>
+          </label>
+          <label>
+            <span>City</span>
+            <input name="city" type="text" placeholder="Asheville" />
+          </label>
+          <label>
+            <span>State</span>
+            <input name="state" type="text" placeholder="NC" />
+          </label>
+          <label>
+            <span>Country</span>
+            <input name="country" type="text" placeholder="USA" />
+          </label>
+          <div class="full form-actions">
+            <button type="submit">Create campground</button>
+            <p id="formMessage" class="muted"></p>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <script src="/main.js" defer></script>
+  </body>
+</html>
