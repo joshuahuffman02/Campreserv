@@ -1,257 +1,61 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-enum Role {
-  guest
-  staff
-  admin
-}
-
-enum ReservationStatus {
-  pending
-  confirmed
-  checked_in
-  checked_out
-  cancelled
-}
-
-enum PaymentStatus {
-  unpaid
-  authorized
-  paid
-  refunded
-  partial_refund
-}
-
-enum PaymentProvider {
-  stripe
-}
-
-enum PricingRuleType {
-  seasonal
-  weekend
-  holiday
-  special_event
-  promo
-}
-
-model User {
-  id            String   @id @default(uuid())
-  email         String   @unique
-  phone         String?
-  passwordHash  String?
-  role          Role     @default(guest)
-  firstName     String?
-  lastName      String?
-  status        String   @default("active")
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  lastLoginAt   DateTime?
-  reservations  Reservation[]
-  auditLogs     AuditLog[] @relation("AuditActor")
-}
-
-model Campground {
-  id             String   @id @default(uuid())
-  name           String
-  description    String?
-  addressLine1   String?
-  addressLine2   String?
-  city           String?
-  state          String?
-  postalCode     String?
-  country        String?
-  timezone       String   @default("UTC")
-  checkInTime    String?  // HH:mm
-  checkOutTime   String?  // HH:mm
-  contactEmail   String?
-  contactPhone   String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  siteTypes      SiteType[]
-  sites          Site[]
-  reservations   Reservation[]
-  pricingRules   PricingRule[]
-}
-
-model SiteType {
-  id            String   @id @default(uuid())
-  campground    Campground @relation(fields: [campgroundId], references: [id])
-  campgroundId  String
-  name          String
-  description   String?
-  basePriceCents Int
-  occupancyMax  Int
-  hasElectric20 Boolean @default(false)
-  hasElectric30 Boolean @default(false)
-  hasElectric50 Boolean @default(false)
-  hasWater      Boolean @default(false)
-  hasSewer      Boolean @default(false)
-  petFriendly   Boolean @default(false)
-  lengthLimitFt Int?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  sites         Site[]
-  pricingRules  PricingRule[]
-}
-
 model Site {
-  id                  String   @id @default(uuid())
-  campground          Campground @relation(fields: [campgroundId], references: [id])
-  campgroundId        String
-  siteType            SiteType @relation(fields: [siteTypeId], references: [id])
-  siteTypeId          String
-  nameOrNumber        String
-  occupancyMaxOverride Int?
-  lengthLimitFtOverride Int?
-  priceOverrideCents  Int?
-  notes               String?
-  isActive            Boolean @default(true)
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-  reservations        Reservation[]
-  blackouts           Blackout[]
-  maintenanceBlocks   MaintenanceBlock[]
-  pricingRules        PricingRule[]
+  id               String   @id @default(cuid())
+  campgroundId     String
+  campground       Campground @relation(fields: [campgroundId], references: [id])
+  name             String
 
-  @@unique([campgroundId, nameOrNumber])
-  @@index([siteTypeId])
-}
+  /// High-level category, e.g. "RV", "Tent", "Cabin", "Glamping"
+  kind             String
 
-model PricingRule {
-  id            String   @id @default(uuid())
-  campground    Campground @relation(fields: [campgroundId], references: [id])
-  campgroundId  String
-  siteType      SiteType? @relation(fields: [siteTypeId], references: [id])
-  siteTypeId    String?
-  site          Site? @relation(fields: [siteId], references: [id])
-  siteId        String?
-  startDate     DateTime
-  endDate       DateTime
-  dayOfWeekMask Int?
-  priceCents    Int
-  minNights     Int?
-  ruleType      PricingRuleType
-  priority      Int      @default(0)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  /// Optional human-friendly type label, e.g. "Back-in FHU 50/30", "Deluxe Cabin"
+  typeLabel        String?
 
-  @@index([campgroundId, startDate, endDate])
-  @@index([siteTypeId])
-  @@index([siteId])
-  @@index([priority])
-}
+  nightlyRateCents Int
 
-model Blackout {
-  id        String   @id @default(uuid())
-  site      Site     @relation(fields: [siteId], references: [id])
-  siteId    String
-  startDate DateTime
-  endDate   DateTime
-  reason    String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  // ------------ Layout & hookups ------------
+  /// True if the site is pull-through. If false (or null), treat as back-in / other.
+  isPullThrough      Boolean? @default(false)
 
-  @@index([siteId, startDate, endDate])
-}
+  /// Approximate maximum rig length in feet (for RVs / trailers).
+  maxRigLengthFeet   Int?
 
-model MaintenanceBlock {
-  id        String   @id @default(uuid())
-  site      Site     @relation(fields: [siteId], references: [id])
-  siteId    String
-  startDate DateTime
-  endDate   DateTime
-  reason    String?
-  createdBy User?    @relation(fields: [createdById], references: [id])
-  createdById String?
-  createdAt DateTime @default(now())
+  /// Hookups
+  has50Amp           Boolean? @default(false)
+  has30Amp           Boolean? @default(false)
+  has20Amp           Boolean? @default(false)
+  hasWaterHookup     Boolean? @default(false)
+  hasSewerHookup     Boolean? @default(false)
+  hasCableTV         Boolean? @default(false)
+  hasWifi            Boolean? @default(false)
 
-  @@index([siteId, startDate, endDate])
-}
+  // ------------ Outdoor amenities ------------
+  hasPatio           Boolean? @default(false)
+  hasFireRing        Boolean? @default(false)
+  hasPicnicTable     Boolean? @default(false)
 
-model Reservation {
-  id              String   @id @default(uuid())
-  campground      Campground @relation(fields: [campgroundId], references: [id])
-  campgroundId    String
-  site            Site     @relation(fields: [siteId], references: [id])
-  siteId          String
-  user            User?    @relation(fields: [userId], references: [id])
-  userId          String?
-  guestFirstName  String
-  guestLastName   String
-  guestEmail      String
-  guestPhone      String?
-  status          ReservationStatus @default(pending)
-  arrivalDate     DateTime
-  departureDate   DateTime
-  adults          Int
-  kids            Int @default(0)
-  pets            Int @default(0)
-  rigType         String?
-  rigLengthFt     Int?
-  vehiclePlate    String?
-  notes           String?
-  nightlySubtotalCents Int
-  taxCents        Int
-  feesCents       Int
-  totalCents      Int
-  paymentStatus   PaymentStatus @default(unpaid)
-  paymentIntentId String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  cancelledAt     DateTime?
-  reservationItems ReservationItem[]
-  payments        Payment[]
+  // ------------ Capacity & policy ------------
+  /// Maximum number of people allowed on this site.
+  maxOccupancy       Int?
 
-  @@index([siteId, arrivalDate, departureDate])
-  @@index([campgroundId, arrivalDate])
-}
+  /// Suggested max number of vehicles (RV + towed vehicle, etc).
+  maxVehicles        Int?
 
-model ReservationItem {
-  id             String   @id @default(uuid())
-  reservation    Reservation @relation(fields: [reservationId], references: [id])
-  reservationId  String
-  date           DateTime
-  priceCents     Int
-  taxCents       Int
-  feeCents       Int
+  isPetFriendly      Boolean? @default(true)
+  isAccessible       Boolean? @default(false)
 
-  @@unique([reservationId, date])
-}
+  // ------------ Lodging-specific details (cabins / glamping) ------------
+  /// True if this site includes a private bathroom.
+  hasBathroom        Boolean? @default(false)
 
-model Payment {
-  id              String   @id @default(uuid())
-  reservation     Reservation @relation(fields: [reservationId], references: [id])
-  reservationId   String
-  provider        PaymentProvider @default(stripe)
-  paymentIntentId String
-  chargeId        String?
-  amountCents     Int
-  currency        String @default("usd")
-  status          PaymentStatus
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  /// True if this site includes a kitchen or kitchenette.
+  hasKitchen         Boolean? @default(false)
 
-  @@index([reservationId])
-  @@index([paymentIntentId])
-}
+  /// True if linens are included by default.
+  linensIncluded     Boolean? @default(false)
 
-model AuditLog {
-  id           String   @id @default(uuid())
-  actor        User?    @relation("AuditActor", fields: [actorUserId], references: [id])
-  actorUserId  String?
-  action       String
-  entityType   String
-  entityId     String
-  meta         Json?
-  createdAt    DateTime @default(now())
+  /// Free-form notes for things that don’t fit in other fields
+  /// (e.g. "Loft bed", "River view", "Shares fire ring with site 12").
+  notes              String?
 
-  @@index([entityType, entityId])
-  @@index([createdAt])
+  reservations       Reservation[]
 }

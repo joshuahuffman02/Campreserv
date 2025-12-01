@@ -1,0 +1,376 @@
+/* ---------- Base ---------- */
+
+:root {
+  --bg-page: #f3f4f6;
+  --bg-card: #ffffff;
+  --border-subtle: #e5e7eb;
+  --border-strong: #d1d5db;
+  --text-main: #111827;
+  --text-muted: #6b7280;
+  --text-soft: #9ca3af;
+  --accent: #6366f1;
+  --accent-strong: #4f46e5;
+  --accent-soft: #e0e7ff;
+  --success: #22c55e;
+  --radius-card: 18px;
+  --radius-input: 10px;
+  --radius-pill: 999px;
+  --shadow-card: 0 18px 40px rgba(15, 23, 42, 0.12);
+  --shadow-soft: 0 4px 12px rgba(15, 23, 42, 0.08);
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "SF Pro Display", sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  font-family: var(--font-sans);
+  color: var(--text-main);
+  background-color: var(--bg-page);
+}
+
+/* ---------- Page layout ---------- */
+
+main {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 0 20px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Big page header (if your index.html has one) */
+
+.app-header {
+  margin-bottom: 4px;
+}
+
+.app-title {
+  margin: 0 0 6px;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.app-subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* ---------- Card / section styling ---------- */
+
+main > section {
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  padding: 22px 22px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Give each section a clear header */
+
+main > section > h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.section-caption {
+  font-size: 12px;
+  color: var(--text-soft);
+}
+
+/* ---------- Forms ---------- */
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field-row {
+  display: flex;
+  gap: 10px;
+}
+
+.field-row .field {
+  flex: 1;
+}
+
+label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+
+  font-family: inherit;
+  font-size: 13px;
+  padding: 8px 10px;
+  border-radius: var(--radius-input);
+  border: 1px solid var(--border-subtle);
+  background: #f9fafb;
+  color: var(--text-main);
+  transition:
+    border-color 0.12s ease,
+    box-shadow 0.12s ease,
+    background-color 0.12s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--accent-strong);
+  box-shadow: 0 0 0 1px var(--accent-soft);
+  background-color: #ffffff;
+}
+
+textarea {
+  min-height: 70px;
+  resize: vertical;
+}
+
+/* ---------- Buttons ---------- */
+
+button {
+  font-family: inherit;
+  font-size: 13px;
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition:
+    transform 0.06s ease,
+    box-shadow 0.1s ease,
+    background 0.12s ease,
+    opacity 0.12s ease;
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+button.primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  color: #ffffff;
+  box-shadow: var(--shadow-soft);
+}
+
+button.primary:hover {
+  opacity: 0.96;
+}
+
+button.secondary {
+  background: #eef2ff;
+  color: var(--accent-strong);
+}
+
+button.secondary:hover {
+  background: #e0e7ff;
+}
+
+button.ghost {
+  background: transparent;
+  color: var(--text-muted);
+}
+
+button.full-width {
+  width: 100%;
+}
+
+/* ---------- Lists: campgrounds / sites / reservations / rules ---------- */
+
+.item-list {
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  border-radius: 14px;
+  border: 1px solid var(--border-subtle);
+  background: #f9fafb;
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease,
+    box-shadow 0.12s ease;
+}
+
+.item-row:hover {
+  background: #eef2ff;
+  border-color: var(--accent-soft);
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
+}
+
+.item-main {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.item-title {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-sub {
+  font-size: 11px;
+  color: var(--text-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tab-panel.hidden {
+  display: none;
+}
+/* ---------- Badges & small tags ---------- */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+/* ---------- Status bar ---------- */
+
+#status-bar {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  max-width: 480px;
+  min-width: 260px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(17, 24, 39, 0.96);
+  color: #e5e7eb;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.6);
+  pointer-events: none;
+  z-index: 100;
+}
+
+#status-bar.error {
+  background: #b91c1c;
+}
+
+#status-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- Availability specific ---------- */
+
+#availability-results {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+/* ---------- Responsive tweaks ---------- */
+
+@media (max-width: 900px) {
+  main {
+    margin-top: 24px;
+    padding-inline: 14px;
+  }
+
+  main > section {
+    padding-inline: 16px;
+  }
+}
+.item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.item-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+button.danger {
+  border: 1px solid #e11d48;
+  background-color: #fee2e2;
+  color: #b91c1c;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+button.danger:hover {
+  background-color: #fecaca;
+}
+.tab-panel {
+  padding: 20px;
+}
+
+.hidden {
+  display: none;
+}

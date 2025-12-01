@@ -1,0 +1,9 @@
+<svg width="320" height="200" viewBox="0 0 320 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="8" y="8" width="304" height="184" rx="48" fill="#F7F0D9" stroke="#4A5A31" stroke-width="16"/>
+  <path d="M36 156C70 126 116 122 150 130C184 138 214 160 248 156C266 154 284 144 292 138L292 164H28L36 156Z" fill="#4A5A31"/>
+  <path d="M178 66L212 126H144L178 66Z" fill="#D9782F"/>
+  <path d="M122 94L158 154H86L122 94Z" fill="#304936"/>
+  <circle cx="196" cy="96" r="20" fill="#F1B43C"/>
+  <text x="64" y="108" font-family="'Inter', 'Montserrat', 'Segoe UI', sans-serif" font-size="32" font-weight="800" fill="#D9782F" letter-spacing="1">CAMP</text>
+  <text x="48" y="144" font-family="'Inter', 'Montserrat', 'Segoe UI', sans-serif" font-size="40" font-weight="800" fill="#D9782F" letter-spacing="1">EVERYDAY</text>
+</svg>

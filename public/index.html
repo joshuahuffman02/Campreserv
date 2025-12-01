@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Campreserv Playground</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      /* Light, open layout that works with your existing CSS */
+
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        margin: 0;
+        padding: 0;
+        background: #f5f5f7;
+        color: #111827;
+      }
+
+      header {
+        padding: 16px 24px;
+        background: #ffffff;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      header h1 {
+        font-size: 20px;
+        margin: 0;
+      }
+
+      header p {
+        margin: 0;
+        font-size: 13px;
+        color: #6b7280;
+      }
+
+      main {
+        max-width: 1100px;
+        margin: 24px auto 80px;
+        padding: 0 16px;
+      }
+
+      .tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+        border-bottom: 1px solid #e5e7eb;
+      }
+
+      .tab-button {
+        border: none;
+        background: none;
+        padding: 10px 16px;
+        font-size: 14px;
+        cursor: pointer;
+        border-radius: 8px 8px 0 0;
+        color: #6b7280;
+      }
+
+      .tab-button.active {
+        background: #ffffff;
+        color: #111827;
+        border: 1px solid #e5e7eb;
+        border-bottom: 1px solid #ffffff;
+      }
+
+    .tab-panel {
+  /* Panels are block by default; visibility controlled via .hidden */
+}
+
+.hidden {
+  display: none;
+}
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+        gap: 16px;
+      }
+
+      .card {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 16px 16px 12px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+      }
+
+      .card h2 {
+        font-size: 16px;
+        margin: 0 0 4px;
+      }
+
+      .card p.card-subtitle {
+        margin: 0 0 12px;
+        font-size: 12px;
+        color: #6b7280;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 8px 12px;
+        margin-bottom: 10px;
+      }
+
+      label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #6b7280;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      input,
+      select {
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        padding: 6px 8px;
+        font-size: 13px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      input[type="checkbox"] {
+        width: auto;
+        margin-right: 6px;
+      }
+
+      .btn-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 4px;
+      }
+
+      button.primary {
+        background: #2563eb;
+        color: #ffffff;
+        border-radius: 8px;
+        border: none;
+        padding: 6px 12px;
+        font-size: 13px;
+        cursor: pointer;
+      }
+
+      button.secondary {
+        background: #f3f4f6;
+        color: #111827;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+        padding: 5px 10px;
+        font-size: 12px;
+        cursor: pointer;
+      }
+
+      ul.item-list {
+        list-style: none;
+        padding: 0;
+        margin: 8px 0 0;
+        max-height: 260px;
+        overflow-y: auto;
+      }
+
+      .item-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 0;
+        border-bottom: 1px solid #f3f4f6;
+        font-size: 13px;
+      }
+
+      .item-main {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .item-title {
+        font-weight: 500;
+      }
+
+      .item-sub {
+        font-size: 12px;
+        color: #6b7280;
+      }
+
+      .toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 6px;
+        font-size: 12px;
+      }
+
+      .toolbar label {
+        flex-direction: row;
+        align-items: center;
+        gap: 6px;
+        text-transform: none;
+        letter-spacing: 0;
+      }
+
+      footer {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+      }
+
+      #status {
+        background: #ffffff;
+        border-top: 1px solid #e5e7eb;
+        padding: 6px 16px;
+        font-size: 12px;
+        color: #374151;
+      }
+
+      #status.status-error {
+        color: #b91c1c;
+      }
+   .item-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+button.danger {
+  background: #b91c1c;
+  color: #ffffff;
+  border-radius: 8px;
+  border: none;
+  padding: 5px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+         .accountant-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 8px;
+        font-size: 12px;
+      }
+
+      .accountant-table th,
+      .accountant-table td {
+        border-top: 1px solid #e5e7eb;
+        padding: 4px 6px;
+        text-align: right;
+        white-space: nowrap;
+      }
+
+      .accountant-table th:first-child,
+      .accountant-table td:first-child {
+        text-align: left;
+      }
+
+      .accountant-table tfoot td {
+        font-weight: 600;
+        border-top: 2px solid #d1d5db;
+      }
+    </style>
+    <script src="main.js" defer></script>
+  </head>
+  <body>
+   <header>
+  <div>
+    <h1>Campreserv Playground</h1>
+    <p>Local mini booking app for Camp Everyday and Rochester KOA</p>
+  </div>
+
+  <!-- Global campground context selector -->
+  <div class="toolbar">
+    <label>
+      Current campground
+      <select id="current-campground-select">
+        <option value="">All campgrounds</option>
+      </select>
+    </label>
+  </div>
+</header>
+
+    <main>
+     <nav class="tabs">
+  <button class="tab-button active" data-tab-target="campgrounds">Campgrounds</button>
+  <button class="tab-button" data-tab-target="sites">Sites</button>
+  <button class="tab-button" data-tab-target="reservations">Reservations</button>
+  <button class="tab-button" data-tab-target="reports">Reports</button>
+</nav>
+<!-- ========================================================= -->
+<!-- TAB PANELS WRAPPER -->
+<!-- ========================================================= -->
+
+<div id="tab-panels-container">
+
+  <!-- Campgrounds Panel -->
+  <section class="tab-panel" data-tab-panel="campgrounds">
+    <div class="grid-2">
+      <!-- Campgrounds -->
+      <section class="card">
+        <h2>Campgrounds</h2>
+        <p class="card-subtitle">
+          Create and manage parks. Taxes are specific per campground.
+        </p>
+        <form id="campground-form" class="form-grid">
+          <label>
+            Name
+            <input id="cg-name" type="text" placeholder="Camp Everyday" />
+          </label>
+          <label>
+            City
+            <input id="cg-city" type="text" placeholder="Winona" />
+          </label>
+          <label>
+            State
+            <input id="cg-state" type="text" placeholder="MN" />
+          </label>
+          <label>
+            Description
+            <input
+              id="cg-description"
+              type="text"
+              placeholder="Bluffside family campground"
+            />
+          </label>
+        </form>
+        <div class="btn-row">
+          <button type="submit" form="campground-form" class="primary">
+            Add campground
+          </button>
+        </div>
+        <ul id="campground-list" class="item-list"></ul>
+      </section>
+    </div>
+  </section>
+
+  <!-- Sites Panel -->
+  <section class="tab-panel hidden" data-tab-panel="sites">
+    <div class="grid-2">
+      <!-- Sites -->
+      <section class="card">
+        <h2>Sites</h2>
+        <p class="card-subtitle">
+          Attach sites to a campground with a base nightly rate.
+        </p>
+        <form id="site-form" class="form-grid">
+          <label>
+            Campground
+            <select id="site-campground">
+              <option value="">Select campground</option>
+            </select>
+          </label>
+          <label>
+            Name or number
+            <input
+              id="site-name"
+              type="text"
+              placeholder="Site 12 or Deluxe Patio"
+            />
+          </label>
+          <label>
+            Kind
+            <select id="site-kind">
+              <option value="RV">RV</option>
+              <option value="Tent">Tent</option>
+              <option value="Cabin">Cabin</option>
+              <option value="Glamping">Glamping</option>
+            </select>
+          </label>
+          <label>
+            Nightly rate ($)
+            <input
+              id="site-rate"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="55.00"
+            />
+          </label>
+        </form>
+        <div class="btn-row">
+          <button type="submit" form="site-form" class="primary">
+            Add site
+          </button>
+        </div>
+
+        <div class="toolbar">
+          <label>
+            Filter by campground
+            <select id="sites-campground-select">
+              <option value="">All campgrounds</option>
+            </select>
+          </label>
+        </div>
+
+        <ul id="site-list" class="item-list"></ul>
+      </section>
+
+      <!-- Pricing rules -->
+      <section class="card">
+        <h2>Pricing rules</h2>
+        <p class="card-subtitle">
+          Weekend bumps, holidays, promos and minimum stay rules.
+        </p>
+        <form id="pricing-rule-form" class="form-grid">
+          <label>
+            Campground
+            <select id="pr-campground">
+              <option value="">Select campground</option>
+            </select>
+          </label>
+          <label>
+            Rule type
+            <select id="pr-type">
+              <option value="seasonal">Seasonal</option>
+              <option value="weekend">Weekend</option>
+              <option value="holiday">Holiday</option>
+              <option value="special_event">Special event</option>
+              <option value="promo">Promo</option>
+            </select>
+          </label>
+          <label>
+            Start date
+            <input id="pr-start" type="date" />
+          </label>
+          <label>
+            End date
+            <input id="pr-end" type="date" />
+          </label>
+          <label>
+            Day of week (0 - 6)
+            <input
+              id="pr-dow"
+              type="number"
+              min="0"
+              max="6"
+              placeholder="Leave blank for all days"
+            />
+          </label>
+          <label>
+            Flat adjust ($ per night)
+            <input
+              id="pr-flat"
+              type="number"
+              step="0.01"
+              placeholder="+10.00 or -5.00"
+            />
+          </label>
+          <label>
+            Percent adjust (0.10 = plus 10 percent)
+            <input
+              id="pr-percent"
+              type="number"
+              step="0.01"
+              placeholder="0.15"
+            />
+          </label>
+          <label>
+            Min nights
+            <input id="pr-minnights" type="number" min="1" />
+          </label>
+        </form>
+        <div class="btn-row">
+          <button type="submit" form="pricing-rule-form" class="primary">
+            Add pricing rule
+          </button>
+        </div>
+        <ul id="pricing-rule-list" class="item-list"></ul>
+      </section>
+    </div>
+  </section>
+
+  <!-- Reservations Panel (availability + reservations + accountant) -->
+  <section class="tab-panel hidden" data-tab-panel="reservations">
+    <!-- Availability -->
+    <div class="grid-2">
+      <section class="card">
+        <h2>Availability</h2>
+        <p class="card-subtitle">
+          Quick check for open sites over a date range.
+        </p>
+        <form id="availability-form" class="form-grid">
+          <label>
+            Campground
+            <select id="availability-campground">
+              <option value="">Select campground</option>
+            </select>
+          </label>
+          <label>
+            Start date
+            <input id="availability-start" type="date" />
+          </label>
+          <label>
+            End date
+            <input id="availability-end" type="date" />
+          </label>
+        </form>
+        <div class="btn-row">
+          <button type="submit" form="availability-form" class="primary">
+            Search availability
+          </button>
+        </div>
+        <ul id="availability-results" class="item-list"></ul>
+      </section>
+    </div>
+
+    <!-- Create reservation -->
+    <section class="card" style="margin-top: 16px;">
+      <h2>Create reservation</h2>
+      <p class="card-subtitle">
+        Simple booking flow for testing pricing and availability.
+      </p>
+      <form id="reservation-form" class="form-grid">
+        <label>
+          Campground
+          <select id="reservation-campground">
+            <option value="">Select campground</option>
+          </select>
+        </label>
+        <label>
+          Site
+          <select id="reservation-site">
+            <option value="">Select site</option>
+          </select>
+        </label>
+        <label>
+          First name
+          <input id="reservation-first" type="text" placeholder="Jane" />
+        </label>
+        <label>
+          Last name
+          <input id="reservation-last" type="text" placeholder="Doe" />
+        </label>
+        <label>
+          Email
+          <input
+            id="reservation-email"
+            type="email"
+            placeholder="jane@example.com"
+          />
+        </label>
+        <label>
+          Arrival
+          <input id="reservation-arrival" type="date" />
+        </label>
+        <label>
+          Departure
+          <input id="reservation-departure" type="date" />
+        </label>
+      </form>
+      <div class="btn-row">
+        <button type="submit" form="reservation-form" class="primary">
+          Create reservation
+        </button>
+        <button
+          type="button"
+          id="reload-reservations-btn"
+          class="secondary"
+        >
+          Reload
+        </button>
+      </div>
+
+      <div id="reservation-summary" class="toolbar">
+        <span>No reservations loaded yet.</span>
+      </div>
+
+      <ul id="reservation-list" class="item-list"></ul>
+    </section>
+
+    <!-- Accountant view -->
+    <section class="card" style="margin-top: 16px;">
+      <h2>Accountant view (beta)</h2>
+      <p class="card-subtitle">
+        Summaries for reconciliation and reporting. Uses the reservations currently in view.
+      </p>
+
+      <form id="accountant-form" class="form-grid">
+        <label>
+          Start date (arrival)
+          <input id="acct-start" type="date" />
+        </label>
+        <label>
+          End date (arrival)
+          <input id="acct-end" type="date" />
+        </label>
+        <label>
+          Mode
+          <select id="acct-mode">
+            <option value="accrual">Accrual – by stay</option>
+            <option value="cash" disabled>
+              Cash (payments) – coming soon
+            </option>
+          </select>
+        </label>
+      </form>
+
+      <div id="accountant-summary" class="item-sub" style="margin-top: 4px;">
+        No reservations in this view.
+      </div>
+
+      <table id="accountant-table" class="accountant-table">
+        <thead>
+          <tr>
+            <th>Date (arrival)</th>
+            <th>Reservations</th>
+            <th>Nights</th>
+            <th>Subtotal</th>
+            <th>Tax</th>
+            <th>Total</th>
+            <th>Avg ADR</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- rows injected by main.js -->
+        </tbody>
+        <tfoot>
+          <tr>
+            <td>Total</td>
+            <td>0</td>
+            <td>0</td>
+            <td>$0.00</td>
+            <td>$0.00</td>
+            <td>$0.00</td>
+            <td>$0.00</td>
+          </tr>
+        </tfoot>
+      </table>
+    </section>
+  </section>
+
+  <!-- Reports Panel -->
+  <section class="tab-panel hidden" data-tab-panel="reports">
+    <section class="card">
+      <h2>Daily revenue report</h2>
+      <p class="card-subtitle">
+        Summarized by arrival date and campground, with accountant friendly totals.
+      </p>
+
+      <div class="form-grid" style="align-items: flex-end; margin-bottom: 8px;">
+        <label>
+          Campground
+          <select id="reports-campground-select">
+            <option value="">All campgrounds</option>
+          </select>
+        </label>
+        <label>
+          Start date
+          <input type="date" id="reports-start" />
+        </label>
+        <label>
+          End date
+          <input type="date" id="reports-end" />
+        </label>
+        <div>
+          <button id="reports-run-btn" class="primary" type="button">
+            Run report
+          </button>
+        </div>
+      </div>
+
+      <div id="reports-status" class="item-sub"></div>
+
+      <div class="table-wrapper">
+        <table id="reports-daily-table" class="accountant-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Reservations</th>
+              <th>Nights</th>
+              <th>Subtotal</th>
+              <th>Tax</th>
+              <th>Total</th>
+              <th>Avg ADR</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- rows will be injected -->
+          </tbody>
+          <tfoot>
+            <tr>
+              <td>Totals</td>
+              <td id="reports-total-res"></td>
+              <td id="reports-total-nights"></td>
+              <td id="reports-total-subtotal"></td>
+              <td id="reports-total-tax"></td>
+              <td id="reports-total-total"></td>
+              <td id="reports-total-adr"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </section>
+  </section>
+
+</div>
+
+    
+    </main>
+
+    <footer>
+      <div id="status">Ready.</div>
+    </footer>
+
+  </body>
+</html>
